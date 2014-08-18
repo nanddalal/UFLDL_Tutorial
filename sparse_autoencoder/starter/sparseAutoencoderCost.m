@@ -79,3 +79,8 @@ function sigm = sigmoid(x)
     sigm = 1 ./ (1 + exp(-x));
 end
 
+function sigm = dsigmoid(x)
+  
+    sigm = sigmoid(x) .* (1 - sigmoid(x));
+end
+
