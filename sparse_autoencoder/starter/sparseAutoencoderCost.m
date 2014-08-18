@@ -49,6 +49,37 @@ b2grad = zeros(size(b2));
 
 
 
+x = data;
+y = data;
+m = size(x,2);
+
+b1 = repmat(b1,1,m);
+b2 = repmat(b2,1,m);
+
+a1 = x;
+z2 = (W1*a1)+b1;
+a2 = sigmoid(z2);
+z3 = (W2*a2)+b2;
+h = sigmoid(z3);
+
+J_sse = (1/(m*2))*sum(sum((h-y).^2));
+J_reg = (lambda/2)*(sum(sum(W1.^2))+sum(sum(W2.^2)));
+
+p = sparsityParam;
+p_hat = sum(a2,2)./m;
+KL = p.*log(p./p_hat)+(1-p).*log((1-p)./(1-p_hat));
+J_spt = beta*sum(KL);
+
+cost = J_sse+J_reg+J_spt;
+
+del3 = -(y-h).*dsigmoid(z3);
+penalty = repmat(-p./p_hat+(1-p)./(1-p_hat),1,m);
+del2 = (W2'*del3+beta*(penalty)).*dsigmoid(z2);
+
+W1grad = del2*a1'/m+lambda*W1;
+b1grad = sum(del2,2)/m;
+W2grad = del3*a2'/m+lambda*W2;
+b2grad = sum(del3,2)/m;
 
 
 
