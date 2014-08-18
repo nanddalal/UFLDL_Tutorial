@@ -20,6 +20,14 @@ numgrad = zeros(size(theta));
 
 
 
+EPSILON = 10^(-4);
+for i = 1:length(theta)
+    theta_pos = theta;
+    theta_pos(i) = theta_pos(i) + EPSILON;
+    theta_neg = theta;
+    theta_neg(i) = theta_neg(i) - EPSILON;
+    numgrad(i) = (J(theta_pos)-J(theta_neg))/(2*EPSILON);
+end
 
 
 
