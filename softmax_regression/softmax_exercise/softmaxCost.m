@@ -26,7 +26,18 @@ thetagrad = zeros(numClasses, inputSize);
 
 
 
+m = numCases;
 
+h = theta * data;
+h = bsxfun(@minus, h, max(h, [], 1));
+h = exp(h);
+h = bsxfun(@rdivide, h, sum(h));
+
+cost = (-1/m) * groundTruth(:)' * log(h(:)) ...
+    + (lambda/2) * sum(theta(:) .^ 2);
+
+thetagrad = (-1/m) * (groundTruth - h) * data' ...
+    + lambda * theta;
 
 
 

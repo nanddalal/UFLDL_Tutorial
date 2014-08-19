@@ -37,6 +37,7 @@ lambda = 1e-4; % Weight decay parameter
 
 addpath ../../vectorization/mnistHelper/
 addpath ../../sparse_autoencoder/starter/
+addpath ../../sparse_autoencoder/starter/minFunc/
 
 images = loadMNISTImages('mnist/train-images-idx3-ubyte');
 labels = loadMNISTLabels('mnist/train-labels-idx1-ubyte');
@@ -48,7 +49,7 @@ inputData = images;
 % in order to speed up gradient checking. 
 % Here, we create synthetic dataset using random data for testing
 
-DEBUG = true; % Set DEBUG to true when debugging.
+DEBUG = false; % Set DEBUG to true when debugging.
 if DEBUG
     inputSize = 8;
     inputData = randn(8, 100);

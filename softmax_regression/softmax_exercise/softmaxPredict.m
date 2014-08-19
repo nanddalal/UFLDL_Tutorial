@@ -17,7 +17,7 @@ pred = zeros(1, size(data, 2));
 
 
 
-
+[noop, pred] = max(theta * data);
 
 
 
