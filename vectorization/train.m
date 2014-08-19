@@ -28,11 +28,11 @@ beta = 3;            % weight of sparsity penalty term
 %  After implementing sampleIMAGES, the display_network command should
 %  display a random sample of 200 patches from the dataset
 
-addpath mnistHelper/
+addpath ../mnistHelper/
 addpath ../sparse_autoencoder/starter/
 addpath ../sparse_autoencoder/starter/minFunc/
 
-images = loadMNISTImages('train-images-idx3-ubyte');
+images = loadMNISTImages('../mnist/train-images-idx3-ubyte');
 patches = images(:,1:10000);
 display_network(patches(:,randi(size(patches,2),200,1)),8);
 
