@@ -27,13 +27,13 @@ patches = zeros(patchsize*patchsize, numpatches);
 
 
 
-rows = size(IMAGES(:,:,1),1);
-cols = size(IMAGES(:,:,1),2);
-num_imgs = size(IMAGES,3);
+rows = size(IMAGES(:,:,1), 1);
+cols = size(IMAGES(:,:,1), 2);
+num_imgs = size(IMAGES, 3);
 
-rand_imgs = randi([1 num_imgs],1,numpatches);
-rand_row_idx = randi([1 rows-patchsize+1],1,numpatches);
-rand_col_idx = randi([1 cols-patchsize+1],1,numpatches);
+rand_imgs = randi([1 num_imgs], 1, numpatches);
+rand_row_idx = randi([1 rows-patchsize+1], 1, numpatches);
+rand_col_idx = randi([1 cols-patchsize+1], 1, numpatches);
 
 for i = 1:numpatches
     img = rand_imgs(i);
@@ -41,7 +41,7 @@ for i = 1:numpatches
     row_end = rand_row_idx(i) + patchsize - 1;
     col_start = rand_col_idx(i);
     col_end = rand_col_idx(i) + patchsize - 1;
-    patch = IMAGES(row_start:row_end,col_start:col_end,img);
+    patch = IMAGES(row_start:row_end, col_start:col_end, img);
     patches(:,i) = patch(:);
 end
 
