@@ -42,6 +42,8 @@ epsilon = 0.1;	       % epsilon for ZCA whitening
 % To speed up gradient checking, we will use a reduced network and some
 % dummy patches
 
+addpath ../../sparse_autoencoder/starter/
+
 debugHiddenSize = 5;
 debugvisibleSize = 8;
 patches = rand([8 10]);
