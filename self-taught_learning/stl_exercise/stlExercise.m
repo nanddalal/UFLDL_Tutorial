@@ -30,6 +30,11 @@ maxIter = 400;
 %  We have sorted the data for you in this so that you will not have to
 %  change it.
 
+addpath ../../mnistHelper/
+addpath ../../sparse_autoencoder/starter/
+addpath ../../sparse_autoencoder/starter/minFunc/
+addpath ../../softmax_regression/softmax_exercise/
+
 % Load MNIST database files
 mnistData   = loadMNISTImages('../../mnist/train-images-idx3-ubyte');
 mnistLabels = loadMNISTLabels('../../mnist/train-labels-idx1-ubyte');
@@ -73,6 +78,15 @@ opttheta = theta;
 
 
 
+options.Method = 'lbfgs';
+options.maxIter = maxIter;
+options.display = 'on';
+
+[opttheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
+        inputSize, hiddenSize, ...
+        lambda, sparsityParam, beta, ...
+        unlabeledData), ...
+    theta, options);
 
 
 
@@ -113,7 +127,13 @@ softmaxModel = struct;
 
 
 
-
+softmaxModel = softmaxTrain( ...
+    hiddenSize, ...
+    numel(unique(trainLabels)), ...
+    1e-4, ...
+    trainFeatures, ...
+    trainLabels, ...
+    options);
 
 
 
@@ -134,7 +154,7 @@ softmaxModel = struct;
 
 
 
-
+[pred] = softmaxPredict(softmaxModel, testFeatures);
 
 
 
