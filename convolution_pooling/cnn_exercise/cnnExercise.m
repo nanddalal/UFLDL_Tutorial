@@ -49,6 +49,7 @@ load ../../linear_decoder/linear_decoder_exercise/STL10Features.mat
 W = reshape(optTheta(1:visibleSize * hiddenSize), hiddenSize, visibleSize);
 b = optTheta(2*hiddenSize*visibleSize+1:2*hiddenSize*visibleSize+hiddenSize);
 
+addpath ../../sparse_autoencoder/starter/
 displayColorNetwork( (W*ZCAWhite)');
 
 %%======================================================================
@@ -64,7 +65,7 @@ displayColorNetwork( (W*ZCAWhite)');
 % Note that we have to preprocess the images in the exact same way 
 % we preprocessed the patches before we can obtain the feature activations.
 
-load stlSubet/stlTrainSubset.mat % loads numTrainImages, trainImages, trainLabels
+load stlSubset/stlTrainSubset.mat % loads numTrainImages, trainImages, trainLabels
 
 %% Use only the first 8 images for testing
 convImages = trainImages(:, :, :, 1:8); 
@@ -77,6 +78,7 @@ convolvedFeatures = cnnConvolve(patchDim, hiddenSize, convImages, W, b, ZCAWhite
 %  provided some code to compare the results of your convolution with
 %  activations from the sparse autoencoder
 
+addpath ../../self-taught_learning/stl_exercise/
 % For 1000 random points
 for i = 1:1000    
     featureNum = randi([1, hiddenSize]);
