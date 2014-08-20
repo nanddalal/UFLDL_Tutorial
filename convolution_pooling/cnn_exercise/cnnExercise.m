@@ -49,7 +49,7 @@ load ../../linear_decoder/linear_decoder_exercise/STL10Features.mat
 W = reshape(optTheta(1:visibleSize * hiddenSize), hiddenSize, visibleSize);
 b = optTheta(2*hiddenSize*visibleSize+1:2*hiddenSize*visibleSize+hiddenSize);
 
-addpath ../../sparse_autoencoder/starter/
+addpath ../../linear_decoder/linear_decoder_exercise/
 displayColorNetwork( (W*ZCAWhite)');
 
 %%======================================================================
@@ -146,53 +146,57 @@ end
 %  convolution and pooling 50 features at a time to avoid running out of
 %  memory. Reduce this number if necessary
 
-stepSize = 50;
-assert(mod(hiddenSize, stepSize) == 0, 'stepSize should divide hiddenSize');
+if exist('cnnPooledFeatures.mat', 'file')
+    load cnnPooledFeatures.mat
+else
+    stepSize = 50;
+    assert(mod(hiddenSize, stepSize) == 0, 'stepSize should divide hiddenSize');
 
-load stlSubset/stlTrainSubset.mat % loads numTrainImages, trainImages, trainLabels
-load stlSubset/stlTestSubset.mat  % loads numTestImages,  testImages,  testLabels
+    load stlSubset/stlTrainSubset.mat % loads numTrainImages, trainImages, trainLabels
+    load stlSubset/stlTestSubset.mat  % loads numTestImages,  testImages,  testLabels
 
-pooledFeaturesTrain = zeros(hiddenSize, numTrainImages, ...
-    floor((imageDim - patchDim + 1) / poolDim), ...
-    floor((imageDim - patchDim + 1) / poolDim) );
-pooledFeaturesTest = zeros(hiddenSize, numTestImages, ...
-    floor((imageDim - patchDim + 1) / poolDim), ...
-    floor((imageDim - patchDim + 1) / poolDim) );
+    pooledFeaturesTrain = zeros(hiddenSize, numTrainImages, ...
+        floor((imageDim - patchDim + 1) / poolDim), ...
+        floor((imageDim - patchDim + 1) / poolDim) );
+    pooledFeaturesTest = zeros(hiddenSize, numTestImages, ...
+        floor((imageDim - patchDim + 1) / poolDim), ...
+        floor((imageDim - patchDim + 1) / poolDim) );
 
-tic();
+    tic();
 
-for convPart = 1:(hiddenSize / stepSize)
-    
-    featureStart = (convPart - 1) * stepSize + 1;
-    featureEnd = convPart * stepSize;
-    
-    fprintf('Step %d: features %d to %d\n', convPart, featureStart, featureEnd);  
-    Wt = W(featureStart:featureEnd, :);
-    bt = b(featureStart:featureEnd);    
-    
-    fprintf('Convolving and pooling train images\n');
-    convolvedFeaturesThis = cnnConvolve(patchDim, stepSize, ...
-        trainImages, Wt, bt, ZCAWhite, meanPatch);
-    pooledFeaturesThis = cnnPool(poolDim, convolvedFeaturesThis);
-    pooledFeaturesTrain(featureStart:featureEnd, :, :, :) = pooledFeaturesThis;   
+    for convPart = 1:(hiddenSize / stepSize)
+
+        featureStart = (convPart - 1) * stepSize + 1;
+        featureEnd = convPart * stepSize;
+
+        fprintf('Step %d: features %d to %d\n', convPart, featureStart, featureEnd);  
+        Wt = W(featureStart:featureEnd, :);
+        bt = b(featureStart:featureEnd);    
+
+        fprintf('Convolving and pooling train images\n');
+        convolvedFeaturesThis = cnnConvolve(patchDim, stepSize, ...
+            trainImages, Wt, bt, ZCAWhite, meanPatch);
+        pooledFeaturesThis = cnnPool(poolDim, convolvedFeaturesThis);
+        pooledFeaturesTrain(featureStart:featureEnd, :, :, :) = pooledFeaturesThis;   
+        toc();
+        clear convolvedFeaturesThis pooledFeaturesThis;
+
+        fprintf('Convolving and pooling test images\n');
+        convolvedFeaturesThis = cnnConvolve(patchDim, stepSize, ...
+            testImages, Wt, bt, ZCAWhite, meanPatch);
+        pooledFeaturesThis = cnnPool(poolDim, convolvedFeaturesThis);
+        pooledFeaturesTest(featureStart:featureEnd, :, :, :) = pooledFeaturesThis;   
+        toc();
+
+        clear convolvedFeaturesThis pooledFeaturesThis;
+
+    end
+
+
+    % You might want to save the pooled features since convolution and pooling takes a long time
+    save('cnnPooledFeatures.mat', 'pooledFeaturesTrain', 'pooledFeaturesTest');
     toc();
-    clear convolvedFeaturesThis pooledFeaturesThis;
-    
-    fprintf('Convolving and pooling test images\n');
-    convolvedFeaturesThis = cnnConvolve(patchDim, stepSize, ...
-        testImages, Wt, bt, ZCAWhite, meanPatch);
-    pooledFeaturesThis = cnnPool(poolDim, convolvedFeaturesThis);
-    pooledFeaturesTest(featureStart:featureEnd, :, :, :) = pooledFeaturesThis;   
-    toc();
-
-    clear convolvedFeaturesThis pooledFeaturesThis;
-
 end
-
-
-% You might want to save the pooled features since convolution and pooling takes a long time
-save('cnnPooledFeatures.mat', 'pooledFeaturesTrain', 'pooledFeaturesTest');
-toc();
 
 %%======================================================================
 %% STEP 4: Use pooled features for classification
@@ -202,7 +206,8 @@ toc();
 %  10 minutes.
 
 % Add the path to your softmax solution, if necessary
-% addpath /path/to/solution/
+addpath ../../softmax_regression/softmax_exercise/
+addpath ../../sparse_autoencoder/starter/minFunc/
 
 % Setup parameters for softmax
 softmaxLambda = 1e-4;
