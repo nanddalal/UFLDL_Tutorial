@@ -33,9 +33,15 @@ beta = 3;              % weight of sparsity penalty term
 %
 %  This loads our training data from the MNIST database files.
 
+addpath ../../mnistHelper/
+addpath ../../sparse_autoencoder/starter/
+addpath ../../sparse_autoencoder/starter/minFunc/
+addpath ../../softmax_regression/softmax_exercise/
+addpath ../../self-taught_learning/stl_exercise/
+
 % Load MNIST database files
-trainData = loadMNISTImages('mnist/train-images-idx3-ubyte');
-trainLabels = loadMNISTLabels('mnist/train-labels-idx1-ubyte');
+trainData = loadMNISTImages('../../mnist/train-images-idx3-ubyte');
+trainLabels = loadMNISTLabels('../../mnist/train-labels-idx1-ubyte');
 
 trainLabels(trainLabels == 0) = 10; % Remap 0 to 10 since our labels need to start from 1
 
@@ -60,6 +66,21 @@ sae1Theta = initializeParameters(hiddenSizeL1, inputSize);
 
 
 
+options.Method = 'lbfgs';
+options.maxIter = 400;
+options.display = 'on';
+
+if exist('L1.mat', 'file')
+    load L1.mat
+else
+    [sae1OptTheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
+            inputSize, hiddenSizeL1, ...
+            lambda, sparsityParam, beta, ...
+            trainData), ...
+        sae1Theta, options);
+    
+    save('L1.mat', 'sae1OptTheta');
+end
 
 
 
@@ -98,6 +119,17 @@ sae2Theta = initializeParameters(hiddenSizeL2, hiddenSizeL1);
 
 
 
+if exist('L2.mat', 'file')
+    load L2.mat
+else
+    [sae2OptTheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
+            hiddenSizeL1, hiddenSizeL2, ...
+            lambda, sparsityParam, beta, ...
+            sae1Features), ...
+        sae2Theta, options);
+
+    save('L2.mat', 'sae2OptTheta');
+end
 
 
 
@@ -135,6 +167,21 @@ saeSoftmaxTheta = 0.005 * randn(hiddenSizeL2 * numClasses, 1);
 
 
 
+if exist('softmax_layer.mat', 'file')
+    load softmax_layer.mat
+else
+    softmaxModel = softmaxTrain( ...
+        hiddenSizeL2, ...
+        numClasses, ...
+        lambda, ...
+        sae2Features, ...
+        trainLabels, ...
+        options);
+
+    saeSoftmaxOptTheta = softmaxModel.optTheta(:);
+
+    save('softmax_layer.mat', 'saeSoftmaxOptTheta');
+end
 
 
 
@@ -177,6 +224,17 @@ stackedAETheta = [ saeSoftmaxOptTheta ; stackparams ];
 
 
 
+if exist('fine_tuning.mat', 'file')
+    load fine_tuning.mat
+else
+    [stackedAEOptTheta, cost] = minFunc( @(p) stackedAECost(p, ...
+            inputSize, hiddenSizeL2, ...
+            numClasses, netconfig, ...
+            lambda, trainData, trainLabels), ...
+        stackedAETheta, options);
+
+    save('fine_tuning.mat', 'stackedAEOptTheta');
+end
 
 
 
@@ -199,8 +257,8 @@ stackedAETheta = [ saeSoftmaxOptTheta ; stackparams ];
 
 % Get labelled test images
 % Note that we apply the same kind of preprocessing as the training set
-testData = loadMNISTImages('mnist/t10k-images-idx3-ubyte');
-testLabels = loadMNISTLabels('mnist/t10k-labels-idx1-ubyte');
+testData = loadMNISTImages('../../mnist/t10k-images-idx3-ubyte');
+testLabels = loadMNISTLabels('../../mnist/t10k-labels-idx1-ubyte');
 
 testLabels(testLabels == 0) = 10; % Remap 0 to 10
 

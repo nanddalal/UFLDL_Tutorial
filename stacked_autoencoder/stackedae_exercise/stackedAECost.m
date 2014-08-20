@@ -67,7 +67,40 @@ groundTruth = full(sparse(labels, 1:M, 1));
 
 
 
+nl = numel(stack) + 1;
 
+z = cell(nl, 1);
+a = cell(nl, 1);
+a{1} = data;
+for L = 1:nl - 1
+    z{L+1} = bsxfun(@plus, stack{L}.w*a{L}, stack{L}.b);
+    a{L+1} = sigmoid(z{L+1});
+end
+
+h = softmaxTheta * a{nl};
+h = bsxfun(@minus, h, max(h, [], 1));
+h = exp(h);
+h = bsxfun(@rdivide, h, sum(h));
+
+cost = (-1/M) * groundTruth(:)' * log(h(:)) ...
+    + (lambda/2) * sum(softmaxTheta(:) .^ 2);
+
+softmaxThetaGrad = (-1/M) * (groundTruth - h) * a{nl}' ...
+    + lambda * softmaxTheta;
+
+del = cell(nl, 1);
+del{nl} = -(softmaxTheta' * (groundTruth - h)) .* dsigmoid(z{nl});
+
+for L = nl-1:-1:2
+    del{L} = (stack{L}.w'*del{L+1}) .* dsigmoid(z{L});
+end
+
+for L = 1:nl - 1
+    %stackgrad{L}.w = (1/M) * del{L+1}*a{L}' + lambda*stack{L}.w;
+    %we only perform regularization/weight decay on the softmax weights
+    stackgrad{L}.w = (1/M) * del{L+1}*a{L}';
+    stackgrad{L}.b = (1/M) * sum(del{L+1}, 2);
+end
 
 
 
@@ -86,4 +119,9 @@ end
 % You might find this useful
 function sigm = sigmoid(x)
     sigm = 1 ./ (1 + exp(-x));
+end
+
+function sigm = dsigmoid(x)
+  
+    sigm = sigmoid(x) .* (1 - sigmoid(x));
 end

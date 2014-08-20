@@ -27,7 +27,17 @@ stack = params2stack(theta(hiddenSize*numClasses+1:end), netconfig);
 
 
 
+nl = numel(stack) + 1;
 
+z = cell(nl, 1);
+a = cell(nl, 1);
+a{1} = data;
+for L = 1:nl - 1
+    z{L+1} = bsxfun(@plus, stack{L}.w*a{L}, stack{L}.b);
+    a{L+1} = sigmoid(z{L+1});
+end
+
+[~, pred] = max(softmaxTheta * a{nl});
 
 
 

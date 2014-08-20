@@ -43,6 +43,7 @@ epsilon = 0.1;	       % epsilon for ZCA whitening
 % dummy patches
 
 addpath ../../sparse_autoencoder/starter/
+addpath ../../sparse_autoencoder/starter/minFunc/
 
 debugHiddenSize = 5;
 debugvisibleSize = 8;
@@ -121,17 +122,22 @@ options.Method = 'lbfgs';
 options.maxIter = 400;
 options.display = 'on';
 
-[optTheta, cost] = minFunc( @(p) sparseAutoencoderLinearCost(p, ...
-                                   visibleSize, hiddenSize, ...
-                                   lambda, sparsityParam, ...
-                                   beta, patches), ...
-                              theta, options);
+if exist('STL10Features.mat', 'file')
+    load STL10Features.mat
+else
+    [optTheta, cost] = minFunc( @(p) sparseAutoencoderLinearCost(p, ...
+                                       visibleSize, hiddenSize, ...
+                                       lambda, sparsityParam, ...
+                                       beta, patches), ...
+                                  theta, options);
 
-% Save the learned features and the preprocessing matrices for use in 
-% the later exercise on convolution and pooling
-fprintf('Saving learned features and preprocessing matrices...\n');                          
-save('STL10Features.mat', 'optTheta', 'ZCAWhite', 'meanPatch');
-fprintf('Saved\n');
+    % Save the learned features and the preprocessing matrices for use in 
+    % the later exercise on convolution and pooling
+    fprintf('Saving learned features and preprocessing matrices...\n');                          
+    save('STL10Features.mat', 'optTheta', 'ZCAWhite', 'meanPatch');
+    fprintf('Saved\n');
+
+end
 
 %% STEP 2d: Visualize learned features
 

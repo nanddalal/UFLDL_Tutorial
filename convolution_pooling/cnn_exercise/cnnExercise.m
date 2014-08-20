@@ -41,7 +41,7 @@ poolDim = 19;          % dimension of pooling region
 optTheta =  zeros(2*hiddenSize*visibleSize+hiddenSize+visibleSize, 1);
 ZCAWhite =  zeros(visibleSize, visibleSize);
 meanPatch = zeros(visibleSize, 1);
-
+load ../../linear_decoder/linear_decoder_exercise/STL10Features.mat
 
 % --------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ displayColorNetwork( (W*ZCAWhite)');
 % Note that we have to preprocess the images in the exact same way 
 % we preprocessed the patches before we can obtain the feature activations.
 
-load stlTrainSubset.mat % loads numTrainImages, trainImages, trainLabels
+load stlSubet/stlTrainSubset.mat % loads numTrainImages, trainImages, trainLabels
 
 %% Use only the first 8 images for testing
 convImages = trainImages(:, :, :, 1:8); 
@@ -147,8 +147,8 @@ end
 stepSize = 50;
 assert(mod(hiddenSize, stepSize) == 0, 'stepSize should divide hiddenSize');
 
-load stlTrainSubset.mat % loads numTrainImages, trainImages, trainLabels
-load stlTestSubset.mat  % loads numTestImages,  testImages,  testLabels
+load stlSubset/stlTrainSubset.mat % loads numTrainImages, trainImages, trainLabels
+load stlSubset/stlTestSubset.mat  % loads numTestImages,  testImages,  testLabels
 
 pooledFeaturesTrain = zeros(hiddenSize, numTrainImages, ...
     floor((imageDim - patchDim + 1) / poolDim), ...
